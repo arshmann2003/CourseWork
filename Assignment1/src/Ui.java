@@ -1,11 +1,8 @@
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Ui {
-    public Scanner scanner;
 
-    public Ui() {
-        scanner = new Scanner(System.in);
-    }
 
     public void displayWelcomeMessage() {
         System.out.println("**********************************");
@@ -37,6 +34,7 @@ public class Ui {
     }
 
     private int getValidMenuOption(int min, int max) {
+        Scanner scanner = new Scanner(System.in);
         int number;
         do {
             String rangeMsg = "Enter a number [" + min + ", " + max + "]: ";
@@ -48,5 +46,48 @@ public class Ui {
             number = scanner.nextInt();
         } while (number < min || number > max);
         return number;
+    }
+
+    public ArrayList<String> getNewGameInfo() {
+        Scanner scanner = new Scanner(System.in);
+        ArrayList<String> gameInfo = new ArrayList<>();
+        System.out.print("Enter the game's name: ");
+        gameInfo.add(scanner.nextLine());
+        gameInfo.add(String.valueOf(getValidGameWeight()));
+        return gameInfo;
+    }
+
+    private float getValidGameWeight() {
+        Scanner scanner = new Scanner(System.in);
+        float result = 0.0f;
+        boolean isValid = false;
+        do {
+            System.out.print("Enter the game's weight: ");
+            String userInput = scanner.next();
+            if (isValidFloat(userInput)) {
+                result = Float.parseFloat(userInput);
+                isValid = true;
+            }
+        } while (!isValid);
+        return result;
+    }
+
+    private boolean isValidFloat(String input) {
+        try {
+            Float.parseFloat(input);
+            return true;
+        } catch (NumberFormatException e) {
+            return false;
+        }
+    }
+
+    public void displayGames(ArrayList<BoardGame> boardGames) {
+        System.out.println("\nList of Games:\n****************");
+        int i=1;
+        for(BoardGame boardGame : boardGames) {
+            System.out.println(i + ". " + boardGame.getName() + ", " + boardGame.getWeight()
+                    + " weight, " + boardGame.getNumOfPlays() + " play(s)");
+            i++;
+        }
     }
 }
