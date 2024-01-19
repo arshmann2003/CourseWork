@@ -24,7 +24,7 @@ public class Ui {
     }
 
     public MenuOptions getMenuOption() {
-        int userInput = getValidMenuOption();
+        int userInput = getValidMenuOption(1, 6) - 1;
         MenuOptions mainOption = null;
 
         for(MenuOptions option: MenuOptions.values()) {
@@ -36,13 +36,17 @@ public class Ui {
         return mainOption;
     }
 
-    private int getValidMenuOption() {
-        while (!scanner.hasNextInt()) {
-            String input = scanner.next();
-            System.out.println("invalid");
-        }
+    private int getValidMenuOption(int min, int max) {
         int number;
-       number = scanner.nextInt();
-       return number;
+        do {
+            String rangeMsg = "Enter a number [" + min + ", " + max + "]: ";
+            System.out.print(rangeMsg);
+            while (!scanner.hasNextInt()) {
+                scanner.next();
+                System.out.print(rangeMsg);
+            }
+            number = scanner.nextInt();
+        } while (number < min || number > max);
+        return number;
     }
 }
