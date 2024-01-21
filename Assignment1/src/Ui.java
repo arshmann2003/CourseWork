@@ -1,9 +1,11 @@
+/**
+ * User text interface that interacts with the user of the application
+ */
+
 import java.util.ArrayList;
 import java.util.Scanner;
 
 public class Ui {
-
-
     public void displayWelcomeMessage() {
         System.out.println("**********************************");
         System.out.println("Welcome to the Board Game Tracker\nby Arshdeep Mann");
@@ -21,7 +23,7 @@ public class Ui {
     }
 
     public MenuOptions getMenuOption() {
-        int userInput = getValidMenuOption(1, 6) - 1;
+        int userInput = getValidMenuOption(1, 6, MenuOptions.add) - 1;
         MenuOptions mainOption = null;
 
         for(MenuOptions option: MenuOptions.values()) {
@@ -33,28 +35,74 @@ public class Ui {
         return mainOption;
     }
 
-    private int getValidMenuOption(int min, int max) {
-        Scanner scanner = new Scanner(System.in);
-        int number;
-        do {
-            String rangeMsg = "Enter a number [" + min + ", " + max + "]: ";
-            System.out.print(rangeMsg);
-            while (!scanner.hasNextInt()) {
-                scanner.next();
-                System.out.print(rangeMsg);
-            }
-            number = scanner.nextInt();
-        } while (number < min || number > max);
-        return number;
-    }
-
     public ArrayList<String> getNewGameInfo() {
         Scanner scanner = new Scanner(System.in);
         ArrayList<String> gameInfo = new ArrayList<>();
-        System.out.print("Enter the game's name: ");
-        gameInfo.add(scanner.nextLine());
+        gameInfo.add(getValidGameName());
         gameInfo.add(String.valueOf(getValidGameWeight()));
         return gameInfo;
+    }
+
+    private String getValidGameName() {
+        Scanner scanner = new Scanner(System.in);
+        while(true) {
+            System.out.print("Enter the game's name: ");
+            String name = scanner.nextLine();
+            if(name.length() >= 1)
+                return name;
+            else {
+                System.out.println("ERROR: Name must be at least 1 character long.");
+            }
+        }
+    }
+
+    public void displayGames(ArrayList<BoardGame> boardGames) {
+        System.out.println("\nList of Games:\n****************");
+        int i=1;
+        for(BoardGame boardGame : boardGames) {
+            System.out.println(i + ". " + boardGame.getName() + ", " + boardGame.getWeight()
+                    + " weight, " + boardGame.getNumOfPlays() + " play(s)");
+            i++;
+        }
+        if(i==1) {
+            System.out.println("No Games Found.");
+        }
+
+    }
+
+    public void dumpObjects(ArrayList<BoardGame> boardGames) {
+        int i=1;
+        System.out.println("All game objects:");
+        for(BoardGame game: boardGames) {
+            System.out.print(i++ + ". ");
+            System.out.println(game);
+        }
+    }
+
+    public int getGameNumber(int numOfGames, MenuOptions options) {
+        System.out.println("(Enter 0 to cancel)");
+        return getValidMenuOption(0, numOfGames, options);
+    }
+
+    private int getValidMenuOption(int min, int max, MenuOptions option) {
+        Scanner scanner = new Scanner(System.in);
+        int number;
+        do {
+            while (!scanner.hasNextInt()) {
+                System.out.println("Error: Please enter a number");
+                scanner.next();
+            }
+            number = scanner.nextInt();
+            if(number==0 && (option==MenuOptions.remove || option==MenuOptions.record))
+                return number;
+            if(number >= min && number <= max )
+                break;
+            else{
+                System.out.println("Error: Please enter a selection between " + min
+                        + " and " + max);
+            }
+        } while (true);
+        return number;
     }
 
     private float getValidGameWeight() {
@@ -66,7 +114,10 @@ public class Ui {
             String userInput = scanner.next();
             if (isValidFloat(userInput)) {
                 result = Float.parseFloat(userInput);
-                isValid = true;
+                if(result >= 1.0 && result <= 5.0)
+                    isValid = true;
+                else
+                    System.out.println("ERROR: Weight must be between 1.0 and 5.0");
             }
         } while (!isValid);
         return result;
@@ -81,13 +132,7 @@ public class Ui {
         }
     }
 
-    public void displayGames(ArrayList<BoardGame> boardGames) {
-        System.out.println("\nList of Games:\n****************");
-        int i=1;
-        for(BoardGame boardGame : boardGames) {
-            System.out.println(i + ". " + boardGame.getName() + ", " + boardGame.getWeight()
-                    + " weight, " + boardGame.getNumOfPlays() + " play(s)");
-            i++;
-        }
+    public void displayIncreasedGameMessage(String name, int numOfPlays) {
+        System.out.println(name + " has been played " + numOfPlays + " time(s)!");
     }
 }
