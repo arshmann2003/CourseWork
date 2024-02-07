@@ -1,5 +1,9 @@
 package Model;
 
+/**
+ * Main driver for the inventory manager.
+ */
+
 import Ui.TextUi;
 
 public class Main {

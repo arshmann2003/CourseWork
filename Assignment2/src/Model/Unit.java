@@ -1,5 +1,11 @@
 package Model;
 
+/**
+ * Low-level class to store model, serial nubmber, ship dates.
+ */
+
+import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Unit {
@@ -8,7 +14,9 @@ public class Unit {
     private String dateShipped;
     private List<Test> tests;
 
+
     // Getters and setters
+
     public String getModel() {
         return model;
     }
@@ -24,8 +32,34 @@ public class Unit {
     public void setSerialNumber(String serialNumber) {
         this.serialNumber = serialNumber;
     }
+    public void validateSerialNumber(String serialNumber) throws InvalidSerialNumberException {
+        if (serialNumber == null || serialNumber.length() < 3 || serialNumber.contains(" ") || !serialNumber.matches("\\d+")
+            || !checkSum(serialNumber))
+        {
+            throw new InvalidSerialNumberException("\t'Serial Number Error: Checksum does not match.'");
+        }
+
+        // Additional validation logic if needed
+    }
+
+    private boolean checkSum(String serialNumber) {
+        String cleanedDigits = serialNumber.replaceAll("\\D", "");
+        int sum = 0;
+
+        for (int i = 0; i < cleanedDigits.length() - 2; i++) {
+            // Convert the character digit to its integer value
+            int digit = Character.getNumericValue(cleanedDigits.charAt(i));
+            // Add the digit to the sum
+            sum += digit;
+        }
+        int checksum = sum % 100;
+        int expectedChecksum = Integer.parseInt(cleanedDigits.substring(cleanedDigits.length() - 2));
+        return checksum == expectedChecksum;
+    }
 
     public String getDateShipped() {
+        if(dateShipped == null)
+            return "-";
         return dateShipped;
     }
 
@@ -41,39 +75,53 @@ public class Unit {
         this.tests = tests;
     }
 
-    public String toString() {
-        return model + " " + serialNumber + " " + dateShipped + " " + tests;
-    }
-}
-
-class Test {
-    private String date;
-    private boolean isTestPassed;
-    private String testResultComment;
-
-    // Getters and setters
-    public String getDate() {
-        return date;
+    public void addTest(Test test) {
+        if(tests==null) {
+            tests = new ArrayList<>();
+        }
+        tests.add(test);
     }
 
-    public void setDate(String date) {
-        this.date = date;
+    public int getNumberOfTests() {
+        if(tests != null)
+            return tests.size();
+        return 0;
     }
 
-    public boolean isTestPassed() {
-        return isTestPassed;
+    public Test mostRecentTest() {
+        // Initialize with a very early date
+        if(tests==null)
+            return null;
+        LocalDate maxDate = LocalDate.MIN;
+        Test mostRecentTest = null;
+
+        for(Test test : tests) {
+            LocalDate date = LocalDate.parse(test.getDate());
+            if (date.isAfter(maxDate)) {
+                maxDate = date;
+                mostRecentTest = test;
+            }
+        }
+        return mostRecentTest;
     }
 
-    public void setTestPassed(boolean testPassed) {
-        isTestPassed = testPassed;
+    public boolean isDefective() {
+        Test mostRecentTest = mostRecentTest();
+        if(mostRecentTest == null)
+            return false;
+        return !mostRecentTest.isTestPassed();
     }
 
-    public String getTestResultComment() {
-        return testResultComment;
+    public boolean isReadyToShip() {
+       Test mostRecentTest = mostRecentTest();
+       if(mostRecentTest == null) {
+           return false;
+       }
+       if(mostRecentTest.isTestPassed() && dateShipped == null) {
+          return true;
+       }
+       return false;
     }
 
-    public void setTestResultComment(String testResultComment) {
-        this.testResultComment = testResultComment;
-    }
 }
 

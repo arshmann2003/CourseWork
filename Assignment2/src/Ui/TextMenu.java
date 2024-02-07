@@ -1,5 +1,12 @@
 package Ui;
 
+/**
+ * Text menu that displays the menu's to the user and get the
+ * input choices from the menu's.
+ */
+
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.Scanner;
 
 public class TextMenu {
@@ -33,18 +40,28 @@ public class TextMenu {
                 int num = scanner.nextInt();
                 if(num<=max && num>=min)
                     return num;
+                System.out.println("Error: Please enter a selection between " + min + " and " +max);
                 continue;
             }
+            System.out.println("Error: Enter a number please.");
             scanner.next();
         }
     }
 
     public String getFilePath() {
         Scanner scanner = new Scanner(System.in);
-        return scanner.nextLine();
+
+        while (true) {
+            String path = scanner.nextLine();
+            if(path.equals(""))
+                return path;
+            if(Files.exists(Paths.get(path)))
+                return path;
+            System.out.println("Invalid Path Try again");
+        }
     }
 
-    public void getReportOption() {
+    public int getReportOption() {
         System.out.println("******************\n" +
                 "* Report Options *\n" +
                 "******************\n" +
@@ -52,6 +69,28 @@ public class TextMenu {
                 "2. DEFECTIVE:     Products that failed their last test.\n" +
                 "3. READY-TO-SHIP: Products passed tests, not shipped.\n" +
                 "4. Cancel report request.");
-        int chosen = getValueInRange(1, 4);
+        return getValueInRange(1, 4);
+    }
+
+    public void displaySortOptions() {
+        System.out.println("*************************************\n" +
+                "* Select desired report sort order: *\n" +
+                "*************************************");
+        System.out.println("1. Sort by serial number\n" +
+                "2. Sort by model, then serial number.\n" +
+                "3. Sort by most recent test date.\n" +
+                "4. Cancel");
+    }
+
+    public SortOptions getSortOption() {
+        int val = getValueInRange(1, 4)-1;
+        SortOptions selectedOption = null;
+        for(SortOptions option : SortOptions.values()) {
+            if(option.ordinal() == val) {
+                selectedOption = option;
+                break;
+            }
+        }
+        return selectedOption;
     }
 }
