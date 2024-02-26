@@ -48,12 +48,9 @@ public class Board {
    public void updatePoints() {
        int totalPoints = 0;
        for(List<Cell> fort : forts) {
-           int undamaged = fort.size();
-           for(Cell cell : fort) {
-               if(cell.isHit())
-                   undamaged--;
-           }
-           switch (undamaged) {
+           long undamaged = fort.size();
+           undamaged -= fort.stream().filter(x -> (x.isHit())).count();
+           switch ((int) undamaged) {
                case 1 -> totalPoints+=1;
                case 2 -> totalPoints+=2;
                case 3 -> totalPoints+=5;
@@ -77,26 +74,25 @@ public class Board {
     }
 
     public boolean winCondition() {
-        for(int i=0; i<grid.length; i++) {
-            for(int j=0; j<grid[i].length; j++){
-                if(grid[i][j].isFort() && !grid[i][j].isHit())
-                    return false;
-            }
+        long count = 0;
+        for(List<Cell> fort : forts) {
+            count += fort.stream()
+                    .filter(x -> (x.isFort() && !x.isHit()))
+                    .count();
         }
-        return true;
+        return count==0;
+    }
+
+    public void showHitCells() {
+        for(List<Cell> fort : forts) {
+            fort.stream()
+                .filter(x -> (x.isFort()) && x.isHit())
+                .forEach(x -> x.cellToChar = (Character.toLowerCase(x.cellToChar)));
+        }
     }
 
     public boolean looseCondition() {
         return opponentPoints >= 2500;
-    }
-
-    public void showHitCells() {
-        for(int i=0; i<grid.length; i++) {
-            for(int j=0; j<grid[i].length; j++){
-                if(grid[i][j].isFort() && grid[i][j].isHit())
-                    grid[i][j].cellToChar = Character.toLowerCase(grid[i][j].cellToChar);
-            }
-        }
     }
 
     private void generateGameBoard(int numOfForts) {
