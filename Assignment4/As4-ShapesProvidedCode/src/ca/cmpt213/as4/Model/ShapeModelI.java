@@ -34,6 +34,9 @@ public class ShapeModelI implements ca.cmpt213.as4.ShapeModel {
 
     @Override
     public void redact() {
+        for(DrawableShapeI drawableShapeI : shapes) {
+            drawableShapeI.redact();
+        }
     }
 
     @Override
